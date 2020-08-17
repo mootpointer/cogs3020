@@ -1,0 +1,25 @@
+---
+title: "Tutorials"
+author: "Author: Matthew Crossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: false 
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: false
+    theme: cerulean
+fontsize: 14pt
+---
+
+#### [Tutorial 1](spiking_tutorial-exported.html)
+#### [Tutorial 2](spiking_tutorial_qif-exported.html)
+#### [Tutorial 3](spiking_tutorial_qif_2-exported.html)
+#### [Tutorial 4](spiking_tutorial_iz_msn-exported.html)
+#### [Tutorial 5](spiking_tutorial_iz_bg_direct-exported.html)
+#### [Tutorial 6](spiking_tutorial_iz_bg_direct_2-exported.html)
+#### [Tutorial 7](spiking_tutorial_iz_bg_direct_3-exported.html)
+#### [Tutorial 8](spiking_tutorial_iz_bg_direct_exrtinction-exported.html)

@@ -1,0 +1,24 @@
+---
+title: "Homework"
+author: "Author: Matthew J. Cossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 4
+    fig_caption: yes
+    # code_folding: show
+    number_sections: false
+    theme: cerulean
+fontsize: 14pt
+---
+
+#### [Homework 1](homework_1-exported.html)
+#### [Homework 2](homework_2-exported.html)
+#### [Homework 3](homework_3-exported.html)
+#### [Homework 4](homework_4-exported.html)
+#### [Homework 5](homework_5-exported.html)
+#### [Homework 6](homework_6-exported.html)

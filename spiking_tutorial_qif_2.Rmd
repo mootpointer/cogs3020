@@ -1,0 +1,90 @@
+---
+title: "spiking network tutorial - qif 2"
+author: "Author: Matthew J. Crossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: false
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: false
+    theme: cerulean
+fontsize: 14pt
+---
+
+```{python, engine.path = '/Users/mq20185996/miniconda3/bin/python'}
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# simulate a chain of two connected quadratic integrate-and-fire neurons
+tau = 1
+C = 25
+vr = -60
+vt = -40
+k = 0.7
+c = -50
+vpeak = 35
+
+n_steps = 900
+
+input_amp = 100
+E = np.concatenate((np.zeros(n_steps // 3), input_amp * np.ones(n_steps // 3),
+                    np.zeros(n_steps // 3)))
+
+v1 = np.zeros(n_steps)
+v2 = np.zeros(n_steps)
+v1[0] = vr
+v2[0] = vr
+
+alpha = 0.01
+beta = 300.0
+o1 = np.zeros(n_steps)
+o2 = np.zeros(n_steps)
+
+w = 0.75
+
+for i in range(n_steps - 1):
+    # neuron 1
+    v1[i + 1] = v1[i] + tau * (k * (v1[i] - vr) * (v1[i] - vt) + E[i]) / C
+    o1[i + 1] = o1[i] + alpha * (beta * np.heaviside(v1[i] - vt, vt) - o1[i])
+    if v1[i + 1] >= vpeak:
+        v1[i] = vpeak
+        v1[i + 1] = c
+
+    # neuron 2
+    v2[i + 1] = v2[i] + tau * (k * (v2[i] - vr) * (v2[i] - vt) + w * o1[i]) / C
+    o2[i + 1] = o2[i] + alpha * (np.heaviside(v2[i] - vt, vt) - o2[i])
+    if v2[i + 1] >= vpeak:
+        v2[i] = vpeak
+        v2[i + 1] = c
+
+fig, ax = plt.subplots(nrows=3, ncols=1)
+ax[0].plot(np.arange(0, n_steps, 1), E)
+ax[0].set_xlabel('Time')
+ax[0].set_ylabel('Input Current')
+
+ax[1].plot(np.arange(0, n_steps, 1), v1, 'C0')
+ax[1].set_xlabel('Time')
+ax[1].set_ylabel('Membrane V')
+ax1 = ax[1].twinx()
+ax1.plot(np.arange(0, n_steps, 1), o1, 'C1')
+ax1.set_ylabel('Output')
+ax1.yaxis.label.set_color('C1')
+
+ax[2].plot(np.arange(0, n_steps, 1), v2, 'C0')
+ax[2].set_xlabel('Time')
+ax[2].set_ylabel('Membrane V')
+ax2 = ax[2].twinx()
+ax2.plot(np.arange(0, n_steps, 1), o2, 'C1')
+ax2.set_ylabel('Output')
+ax2.yaxis.label.set_color('C1')
+
+plt.tight_layout()
+plt.show()
+
+```

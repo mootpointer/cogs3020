@@ -1,0 +1,21 @@
+---
+# title: "Index"
+# author: "Author: Matthew J. Cossley"
+# date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: false
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 3
+    fig_caption: yes
+    # code_folding: show
+    number_sections: false
+    theme: cerulean
+fontsize: 14pt
+---
+
+<center>
+    ![FigName](img/brain_bling.jpg)
+</center>

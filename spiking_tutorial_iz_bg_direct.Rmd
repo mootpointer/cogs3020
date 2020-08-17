@@ -1,0 +1,145 @@
+---
+title: "spiking network tutorial - BG Direct Pathway"
+author: "Author: Matthew J. Crossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: false
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 4
+    fig_caption: yes
+    number_sections: false
+    theme: cerulean
+fontsize: 14pt
+---
+
+```{python, engine.path = '/Users/mq20185996/miniconda3/bin/python'}
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# The direct pathway through the basal ganglia
+def update_msn(v, u, o, I, i):
+    C = 50
+    vr = -80
+    vt = -25
+    k = 1
+    a = 0.01
+    b = -20
+    c = -55
+    d = 150
+    vpeak = 40
+
+    v[0] = vr
+
+    v[i + 1] = v[i] + tau * (k * (v[i] - vr) *
+                             (v[i] - vt) - u[i] + w * I[i]) / C
+    u[i + 1] = u[i] + tau * a * (b * (v[i] - vr) - u[i])
+    o[i + 1] = o[i] + alpha * (np.heaviside(v[i] - vt, vt) - o[i])
+
+    if v[i + 1] >= vpeak:
+        v[i] = vpeak
+        v[i + 1] = c
+        u[i + 1] = u[i + 1] + d
+
+
+def update_qif(v, o, I, i):
+    tau = 1
+    C = 25
+    vr = -60
+    vt = -40
+    k = 0.7
+    c = -50
+    vpeak = 35
+
+    v[0] = vr
+
+    v[i + 1] = v[i] + tau * (k * (v[i] - vr) * (v[i] - vt) + w * I[i]) / C
+    o[i + 1] = o[i] + alpha * (np.heaviside(v[i] - vt, vt) - o[i])
+    if v[i + 1] >= vpeak:
+        v[i] = vpeak
+        v[i + 1] = c
+
+
+# number of time steps
+n_steps = 900
+
+input_amp = 2000
+E = np.concatenate((np.zeros(n_steps // 3), input_amp * np.ones(n_steps // 3),
+                    np.zeros(n_steps // 3)))
+
+# neurotransmitter release
+alpha = 0.01
+beta = 100.0
+
+# msn
+v_d1 = np.zeros(n_steps)
+u_d1 = np.zeros(n_steps)
+o_d1 = np.zeros(n_steps)
+d1_base = 0.0
+
+# globus pallidus
+v_gp = np.zeros(n_steps)
+o_gp = np.zeros(n_steps)
+gp_base = 300
+
+# thalamus
+v_th = np.zeros(n_steps)
+o_th = np.zeros(n_steps)
+th_base = 300
+
+# motor
+v_m1 = np.zeros(n_steps)
+o_m1 = np.zeros(n_steps)
+m1_base = 0.0
+
+w_vis_d1 = 0.75
+w_d1_gp = 2000.0
+w_gp_th = 2000.0
+w_th_m1 = 2000.0
+
+for i in range(n_steps - 1):
+    update_msn(v_d1, u_d1, o_d1, w_vis_d1 * E, i)
+    update_qif(v_gp, o_gp, gp_base - w_d1_gp * o_d1, i)
+    update_qif(v_th, o_th, th_base - w_gp_th * o_gp, i)
+    update_qif(v_m1, o_m1, m1_base + w_th_m1 * o_th, i)
+
+fig, ax = plt.subplots(nrows=5, ncols=1)
+ax[0].plot(np.arange(0, n_steps, 1), E)
+ax[0].set_ylabel('Input')
+
+ax[1].plot(np.arange(0, n_steps, 1), v_d1, 'C0')
+ax[1].set_ylabel('Membrane V')
+ax1 = ax[1].twinx()
+ax1.plot(np.arange(0, n_steps, 1), o_d1, 'C1')
+ax1.set_ylabel('Output')
+ax1.yaxis.label.set_color('C1')
+
+ax[2].plot(np.arange(0, n_steps, 1), v_gp, 'C0')
+ax[2].set_ylabel('Membrane V')
+ax1 = ax[2].twinx()
+ax1.plot(np.arange(0, n_steps, 1), o_gp, 'C1')
+ax1.set_ylabel('Output')
+ax1.yaxis.label.set_color('C1')
+
+ax[3].plot(np.arange(0, n_steps, 1), v_th, 'C0')
+ax[3].set_ylabel('Membrane V')
+ax1 = ax[3].twinx()
+ax1.plot(np.arange(0, n_steps, 1), o_th, 'C1')
+ax1.set_ylabel('Output')
+ax1.yaxis.label.set_color('C1')
+
+ax[4].plot(np.arange(0, n_steps, 1), v_m1, 'C0')
+ax[4].set_ylabel('Membrane V')
+ax1 = ax[4].twinx()
+ax1.plot(np.arange(0, n_steps, 1), o_m1, 'C1')
+ax1.set_ylabel('Output')
+ax1.yaxis.label.set_color('C1')
+
+plt.tight_layout()
+plt.show()
+
+```
