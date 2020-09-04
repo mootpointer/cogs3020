@@ -15,11 +15,12 @@ output:
 fontsize: 14pt
 ---
 
-#### [Tutorial 1](spiking_tutorial-exported.html)
-#### [Tutorial 2](spiking_tutorial_qif-exported.html)
-#### [Tutorial 3](spiking_tutorial_qif_2-exported.html)
-#### [Tutorial 4](spiking_tutorial_iz_msn-exported.html)
-#### [Tutorial 5](spiking_tutorial_iz_bg_direct-exported.html)
-#### [Tutorial 6](spiking_tutorial_iz_bg_direct_2-exported.html)
-#### [Tutorial 7](spiking_tutorial_iz_bg_direct_3-exported.html)
-#### [Tutorial 8](spiking_tutorial_iz_bg_direct_exrtinction-exported.html)
+#### [Tutorial 1: A single QIF neuron](spiking_tutorial_qif-exported.html)
+#### [Tutorial 2: Two connected QIF neurons](spiking_tutorial_qif_2-exported.html)
+#### [Tutorial 3: A single Izhikevich MSN](spiking_tutorial_iz_msn-exported.html)
+#### [Tutorial 4: The direct pathway through the basal ganglia](spiking_tutorial_iz_bg_direct-exported.html)
+#### [Tutorial 5: Multiple trials and motor responses in the direct pathway model](spiking_tutorial_iz_bg_direct_2-exported.html)
+#### [Tutorial 6: Learning via synaptic plasticity in the direct pathway model](spiking_tutorial_iz_bg_direct_3-exported.html)
+#### [Tutorial 7: Extinction and reacquisition in the direct pathway model](spiking_tutorial_iz_bg_direct_exrtinction-exported.html)
+
+#### [Tutorial 8: Extinction and reacquisition in the direct pathway model - Average over many simulations](spiking_tutorial_iz_bg_direct_exrtinction_2-exported.html)
