@@ -19,8 +19,8 @@ n_steps = 900
 
 input_onset = 200
 input_offset = 300
-input_amp = 2000
-mod_amp = 2000
+input_amp = 1000
+mod_amp = 1000
 E_decay = 0.99
 
 E = np.zeros(n_steps)

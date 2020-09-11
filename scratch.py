@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 # add trials, and motor responses via motor noise
 # The direct pathway through the basal ganglia
 def update_msn(v, u, o, I, i):
@@ -18,8 +19,7 @@ def update_msn(v, u, o, I, i):
 
     v[0] = vr
 
-    v[i + 1] = v[i] + tau * (k * (v[i] - vr) *
-                             (v[i] - vt) - u[i] + I[i]) / C
+    v[i + 1] = v[i] + tau * (k * (v[i] - vr) * (v[i] - vt) - u[i] + I[i]) / C
     u[i + 1] = u[i] + tau * a * (b * (v[i] - vr) - u[i])
     o[i + 1] = o[i] + alpha * (np.heaviside(v[i] - vt, vt) - o[i])
 
@@ -47,7 +47,7 @@ def update_qif(v, o, I, i):
         v[i + 1] = c
 
 
-n_simulations = 100
+n_simulations = 10
 n_trials = 300
 n_steps = 900
 
@@ -99,14 +99,18 @@ for k in range(n_simulations):
     print(k)
     for j in range(n_trials - 1):
         for i in range(n_steps - 1):
-            update_msn(v_d1[:, j], u_d1[:, j], o_d1[:, j], w_vis_d1[j, k] * E, i)
-            update_qif(v_gp[:, j], o_gp[:, j], gp_base - w_d1_gp * o_d1[:, j], i)
-            update_qif(v_th[:, j], o_th[:, j], th_base - w_gp_th * o_gp[:, j], i)
+            update_msn(v_d1[:, j], u_d1[:, j], o_d1[:, j], w_vis_d1[j, k] * E,
+                       i)
+            update_qif(v_gp[:, j], o_gp[:, j], gp_base - w_d1_gp * o_d1[:, j],
+                       i)
+            update_qif(v_th[:, j], o_th[:, j], th_base - w_gp_th * o_gp[:, j],
+                       i)
             update_qif(
-                v_m1[:, j], o_m1[:, j],
-                m1_base + w_th_m1 * o_th[:, j] + np.random.normal(0, 100, n_steps), i)
+                v_m1[:, j], o_m1[:, j], m1_base + w_th_m1 * o_th[:, j] +
+                np.random.normal(0, 100, n_steps), i)
             if o_m1[i, j] > resp_thresh:
                 resp[j, k] = 1
+                break
 
         if resp[j, k] == 1:
             if j > 100 and j < 200:
@@ -121,6 +125,7 @@ for k in range(n_simulations):
             w_vis_d1[j + 1, k] = w_vis_d1[j, k] + w_ltp * delta[j, k]
         elif delta[j, k] < 0:
             w_vis_d1[j + 1, k] = w_vis_d1[j, k] + w_ltd * delta[j, k]
+
 
 fig, ax = plt.subplots(nrows=3, ncols=1)
 ax[0].plot(np.arange(0, n_trials), resp.mean(axis=1))
