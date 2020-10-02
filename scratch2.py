@@ -98,7 +98,7 @@ def update_qif(v, o, I, i):
         v[i + 1] = c
 
 
-n_simulations = 5
+n_simulations = 1
 n_trials = 300
 n_steps = 1200
 
@@ -140,7 +140,7 @@ m1_base = 0.0
 
 w_pf_tan = 0.2 * np.ones((n_trials, n_simulations))
 w_vis_d1 = 0.2 * np.ones((n_trials, n_simulations))
-w_tan_msn = 6000
+w_tan_msn = 10000
 w_d1_gp = 2000.0
 w_gp_th = 2000.0
 w_th_m1 = 2000.0
@@ -152,10 +152,10 @@ pr = np.zeros((n_trials, n_simulations))
 delta = np.zeros((n_trials, n_simulations))
 pr_alpha = 0.01
 
-w_ltp_d1 = 1e-11
+w_ltp_d1 = 1e-8
 w_ltd_d1 = 1e-11
-w_ltp_tan = 3e-3
-w_ltd_tan = 5e-3
+w_ltp_tan = 3e-6
+w_ltd_tan = 5e-6
 
 for k in range(n_simulations):
     for j in range(n_trials - 1):
@@ -192,8 +192,8 @@ for k in range(n_simulations):
             else:
                 r[j, k] = 1
 
-            delta[j, k] = r[j, k] - pr[j, k]
-            pr[j + 1, k] = pr[j, k] + pr_alpha * delta[j, k]
+        delta[j, k] = r[j, k] - pr[j, k]
+        pr[j + 1, k] = pr[j, k] + pr_alpha * delta[j, k]
 
         sum_vis = o_vis.sum()
         sum_d1 = o_d1.sum()

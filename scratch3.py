@@ -167,7 +167,7 @@ delta = np.zeros((n_trials, n_simulations))
 pr_alpha = 0.1
 
 w_ltp_d1 = 1e-10
-w_ltd_d1 = 1e-12
+w_ltd_d1 = 5e-12
 w_ltp_d2 = 1e-11
 w_ltd_d2 = 1e-11
 # w_ltp_tan = 3e-3
