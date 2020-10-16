@@ -1,3 +1,8 @@
+# TODO: think about camkII and darp32 cascade models. Currently using
+# heaviside, which I don't think is appropriate since receptor activation
+# likely is not binary... should be a continuous readout proportional to the
+# amount of neurotransmitter bound.
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,9 +12,12 @@ from scipy.stats import multivariate_normal
 # parameters
 #################
 
+t_burnout = 2000
+run_yet = False
+
 tau = 1
 spike_decay = 0.005
-trace_decay = 0.001
+trace_decay = 0.0025
 
 n_simulations = 1
 n_trials = 2  # must be even number
@@ -28,6 +36,8 @@ pf_amp = 2000
 pf_decay = 1 - 2e-3
 pf_onset = 2000
 pf_offset = 2050
+pf_onset_2 = 6000
+pf_offset_2 = 6050
 
 # connection weights
 w_lat = 1e5
@@ -45,7 +55,7 @@ w_delta_da = 500
 w_ltp_msn_d1 = 1e-8
 w_ltd_msn_d1 = 1e-8
 w_ltp_tan = 1e-1
-w_ltd_tan = 1e-12 * 0
+w_ltd_tan = 1e-1
 
 # responses
 resp_thresh = 1
@@ -100,7 +110,8 @@ base_pm = 10
 v_da = np.zeros((n_steps, 1))
 o_da = np.zeros((n_steps, 1))
 darp32_da = np.zeros((n_steps, 1))
-base_da = 150
+base_da = 140
+darp32_da_base = 0
 
 
 #################
@@ -123,7 +134,11 @@ def plot_network():
     fig, ax = plt.subplots(7, 2, squeeze=False, figsize=(10, 6))
     ax[0, 0].plot(o_pf_u, alpha=ao)
     ax[1, 0].plot(v_da, alpha=av)
-    ax[1, 0].twinx().plot(o_da, alpha=ao)
+
+    axda = ax[1, 0].twinx()
+    axda.plot(o_da, alpha=ao)
+    axda.plot([0, n_steps], [darp32_da_base, darp32_da_base])
+
     ax[2, 0].plot(v_tan, alpha=av)
     ax[2, 0].twinx().plot(o_tan, alpha=ao)
     ax[3, 0].plot(v_msn_d1, alpha=av)
@@ -282,8 +297,6 @@ def update_pf():
     for i in range(pf_offset, n_steps):
         o_pf_u[i] = pf_decay * o_pf_u[i - 1]
 
-    pf_onset_2 = 6000
-    pf_offset_2 = 6050
     o_pf_v[pf_onset_2:pf_offset_2] = pf_amp
     o_pf_u[pf_onset_2:pf_offset_2] = pf_amp
     for i in range(pf_offset_2, n_steps):
@@ -412,9 +425,44 @@ def update_da(i):
     darp32 = darp32_da
     base = base_da
     I = base - w_tan_da * o_tan[i, :] + w_delta_da * delta
-    update_qif(v, o, I, i)
+
+    C = 25
+    vr = -60
+    vt = -40
+    k = 0.7
+    c = -50
+    vpeak = 35
+    v[0, :] = vr
+
+    v[i + 1, :] = v[i, :] + tau * (k * (v[i, :] - vr) * (v[i, :] - vt) + I) / C
+    o[i + 1, :] = o[i, :] + spike_decay * (np.heaviside(v[i, :] - vt, vt) -
+                                           o[i, :])
     darp32[i + 1, :] = darp32[i, :] + trace_decay * (
         np.heaviside(v[i, :] - vt, vt) - darp32[i, :])
+
+    for ii in range(v.shape[1]):
+        if v[i + 1, ii] >= vpeak:
+            v[i, ii] = vpeak
+            v[i + 1, ii] = c
+
+
+def compute_darp32_base():
+    global darp32_da_base
+
+    for k in range(n_steps - 1):
+        update_da(k)
+        update_tan(k)
+
+    darp32_da_base = darp32_da[2000:, 0].mean()
+
+    # av = 0.1
+    # ao = 1
+    # fig, ax = plt.subplots(3, 1, squeeze=False, figsize=(10, 6))
+    # ax[0, 0].plot(o_da, alpha=ao)
+    # ax[0, 0].plot(darp32_da, alpha=ao)
+    # ax[0, 0].plot([0, n_steps], [darp32_da_base, darp32_da_base])
+    # ax[2, 0].plot(o_tan, alpha=ao)
+    # plt.show()
 
 
 def update_qif(v, o, I, i):
@@ -456,40 +504,40 @@ def update_response(i):
 
 
 def update_reward():
-    global r, delta, pr
+    global r, delta, pr, run_yet
 
-    if resp != -1:
+    if resp != -1 and run_yet == False:
         r = 1 if resp == cat else -1
         delta = r - pr
         pr += pr_alpha * delta
+        run_yet = True
+        print(delta)
 
 
 def update_weights(i):
-    global w_pf_tan, w_vis_msn_d1, camkII_msn_d1, camkII_tan, darp32_da
+    global w_pf_tan, w_vis_msn_d1, camkII_msn_d1, camkII_tan, darp32_da, o_pf_v, o_vis
 
-    # compute pre and post synaptic activities
-    sum_vis = o_vis.sum(0)
-    sum_msn_d1 = o_msn_d1.sum(0)
-    sum_pf = o_pf_v.sum()
-    sum_tan = o_tan[pf_onset:pf_offset].sum()
+    if i > t_burnout:
 
-    # update synaptic weights
-    if delta >= 0:
-        w_pf_tan += w_ltp_tan * sum_pf * sum_tan * delta
+        # update synaptic weights
+        if darp32_da[i] >= darp32_da_base:
+            w_pf_tan += w_ltp_tan * camkII_tan[i] * (darp32_da[i] - darp32_da_base)
 
-        for ii in range(vis_dim**2):
-            w_vis_msn_d1[
-                ii, :] += w_ltp_msn_d1 * sum_vis[ii] * sum_msn_d1 * delta
+            for ii in range(vis_dim**2):
+                for jj in range(n_channels):
+                    w_vis_msn_d1[ii, :] += w_ltp_msn_d1 * camkII_msn_d1[i, jj] * (
+                        darp32_da[i] - darp32_da_base)
 
-    else:
-        w_pf_tan += w_ltd_tan * sum_pf * sum_tan * delta
+        else:
+            w_pf_tan += w_ltd_tan * camkII_tan[i] * (darp32_da[i] - darp32_da_base)
 
-        for ii in range(vis_dim**2):
-            w_vis_msn_d1[
-                ii, :] += w_ltd_msn_d1 * sum_vis[ii] * sum_msn_d1 * delta
+            for ii in range(vis_dim**2):
+                for jj in range(n_channels):
+                    w_vis_msn_d1[ii, :] += w_ltd_msn_d1 * camkII_msn_d1[i, jj] * (
+                        darp32_da[i] - darp32_da_base)
 
-    w_pf_tan = np.clip(w_pf_tan, 0.01, 1)
-    w_vis_msn_d1 = np.clip(w_vis_msn_d1, 0.01, 1)
+        w_pf_tan = np.clip(w_pf_tan, 0.01, 1)
+        w_vis_msn_d1 = np.clip(w_vis_msn_d1, 0.01, 1)
 
 
 def reset_network():
@@ -497,6 +545,7 @@ def reset_network():
     resp = -1
     r = 0
     delta = 0
+    run_yet = False
 
 
 def record_trial(i, j):
@@ -511,9 +560,11 @@ def record_trial(i, j):
 #################
 for i in range(n_simulations):
 
-    print(i)
+    # print(i)
 
     stimuli = gen_cat_2()
+
+    compute_darp32_base()
 
     for j in range(n_trials):
 
