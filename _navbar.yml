@@ -1,19 +1,17 @@
 title: "COGS3020"
 type: default
 left:
-  # - text: "Unit Guide"
-  #   href: https://unitguides.mq.edu.au/unit_offerings/123650/unit_guide
-  # - text: "iLearn"
-  #   href: https://ilearn.mq.edu.au/course/view.php?id=38800
-  # - text: "GitHub"
-  #   href: https://github.com/crossley/cogs2020
-  # - text: "Syllabus"
-  #   href: syllabus-exported.html
-  # - text: "Lectures"
-  #   href: lectures-exported.html
-  - text: "Tutorials"
-    href: tutorials-exported.html
-  # - text: "Homework"
-  #   href: homework-exported.html
+  - text: "Unit Guide"
+    href: https://unitguides.mq.edu.au/unit_offerings/123650/unit_guide
+  - text: "iLearn"
+    href: https://ilearn.mq.edu.au/course/view.php?id=38800
+  - text: "GitHub"
+    href: https://github.com/crossley/cogs2020
+  - text: "Syllabus"
+    href: syllabus.html
+  - text: "Lectures"
+    href: lectures.html
+  - text: "Homework"
+    href: homework.html
 
 # right:

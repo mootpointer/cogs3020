@@ -1,0 +1,87 @@
+---
+title: "Syllabus"
+author: "Author: Matthew J. Cossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 3
+    fig_caption: yes
+    number_sections: false
+    theme: cosmo
+fontsize: 14pt
+---
+
+## Course Websites
+Please reference the following course websites for course
+details:
+
+- [Course Materials](https://crossley.github.io/cogs3020/)
+- [iLearn](https://ilearn.mq.edu.au/course/view.php?id=38800)
+- [Unit Guide](https://unitguides.mq.edu.au/unit_offerings/123650/unit_guide)
+
+## Instructor Information
+- **Name:** Dr. Matthew J. Crossley
+- **Email:** matthew.crossley@mq.edu.au
+- **Office:** Australian Hearing Hub 3.819
+- **Office Hours:** By appointment
+
+<!-- ## Tutor Information -->
+<!-- - **Name:** TBA -->
+<!-- - **Email:** TBS -->
+<!-- - **Office:** TBA -->
+<!-- - **Office Hours:** TBA -->
+
+## Course Schedule
+|          | Day       | Time                | Location                            |
+|----------|-----------|---------------------|-------------------------------------|
+| Lecture  | Friday    | 10:00 AM - 11:00 AM | Online                              |
+| Tutorial | Thursday  | 9:00 AM - 10:00 PM  | 12 Second Way - 318 Faculty PC Room |
+
+## Weekly Lectures
+- Please see [lectures](https://crossley.github.io/cogs3020/lectures-exported.html)
+
+## Course Philosophy
+**Python competency**: No lectures or tutorials will be
+explicitly geared towards teaching Python. This course
+assumes you have a solid enough programming background to
+pick up Python as we go.
+
+**Computational literacy**: The main objective of the course
+is for you to be able to spend time with published
+computational modelling papers, and replicate most or all of
+the results in those papers. This is a super power among
+cognitive neuroscientist.
+
+## Performance Evaluation
+- 10% quizzes
+- 30% problem sets
+- 30% midterm exam
+- 30% final exam
+
+**Quizzes**: 10 short online multiple quizzes designed to
+provide routine assessment and feedback. Graded on
+credit/no-credit basis. The 2 lowest quizzes (missed or
+marked non-credit) may be dropped without penalty. These
+will not be hard. They are simple nudges to motivate you to
+study lecture notes **before** lecture begins.
+
+**Problem sets**: These are where most of your learning will
+occur. They will require hard work and it is essential that
+you take them seriously and commit adequate time to them.
+They will closely follow the lecture notes.
+
+**Midterm exam**: This will take the form of a 1 page
+proposal in which you choose a computational model from the
+literature and choose key results from this paper that you
+will replicate for the final exam.
+
+**Final exam**: This will take the form of a final report
+and / or presentation to the class (class size and time
+allowing) about a computational model from the literature
+that you selected as part of your midterm exam. You will be
+responsible for replicating key findings from this paper
+with code that you have written from scratch.

@@ -1,0 +1,44 @@
+---
+title: "Lectures"
+author: "Author: Matthew J. Cossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: false
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 4
+    fig_caption: yes
+    # code_folding: show
+    number_sections: false
+    theme: cosmo
+fontsize: 14pt
+---
+
+## Course Intro
+#### [Lecture 1: Course intro, `Python`](lecture_1.html)
+
+## Neuron models
+##### Lecture 2: Hodgkin–Huxley
+##### Lecture 3: Integrate-and-fire, quadratic integrate-and-fire, The Izhikevich model
+
+## Building spiking networks
+##### Lecture 4: Direct and indirect pathways of the basal ganglia
+
+## Reinforcement Learning (RL)
+##### Lecture 5: Model-free RL models of stimulus-response learning
+##### Lecture 6: Model-based RL models of goal-directed learning
+#### Lecture 7: Temporal-difference RL model of dopamine
+
+## Linear dynamical systems
+##### Lecture 8: State-space models of sensorimotor learning
+
+## Deep neural network (DNN) models of the visual system
+##### Lecture 9: Early deep models (HMAX)
+##### Lecture 10: Modern DNNs
+
+## Parameter estimation and model selection
+##### Lecture 11: Least squares and maximum likelihood
+##### Lecture 12: Differential evolution
+##### Lecture 13: TBA

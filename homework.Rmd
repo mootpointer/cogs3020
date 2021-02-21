@@ -4,7 +4,7 @@ author: "Author: Matthew J. Cossley"
 date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
-    toc: true
+    toc: false
     toc_float:
         collapsed: true
         smooth_scroll: true
@@ -12,13 +12,17 @@ output:
     fig_caption: yes
     # code_folding: show
     number_sections: false
-    theme: cerulean
+    theme: cosmo
 fontsize: 14pt
 ---
 
-#### [Homework 1](homework_1-exported.html)
-#### [Homework 2](homework_2-exported.html)
-#### [Homework 3](homework_3-exported.html)
-#### [Homework 4](homework_4-exported.html)
-#### [Homework 5](homework_5-exported.html)
-#### [Homework 6](homework_6-exported.html)
+#### [Homework 1](homework_1.html)
+<!-- #### [Homework 2](homework_2.html) -->
+<!-- #### [Homework 3](homework_3.html) -->
+<!-- #### [Homework 4](homework_4.html) -->
+<!-- #### [Homework 5](homework_5.html) -->
+<!-- #### [Homework 6](homework_6.html) -->
+<!-- #### [Homework 6](homework_7.html) -->
+<!-- #### [Homework 6](homework_8.html) -->
+<!-- #### [Homework 6](homework_9.html) -->
+<!-- #### [Homework 6](homework_10.html) -->

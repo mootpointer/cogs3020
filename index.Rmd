@@ -1,5 +1,5 @@
 ---
-# title: "Index"
+title: ""
 # author: "Author: Matthew J. Cossley"
 # date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -12,7 +12,7 @@ output:
     fig_caption: yes
     # code_folding: show
     number_sections: false
-    theme: cerulean
+    theme: cosmo
 fontsize: 14pt
 ---
 

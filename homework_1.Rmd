@@ -1,0 +1,36 @@
+---
+title: "Homework 1"
+author: "Author: Matthew J. Cossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 3
+    fig_caption: yes
+    number_sections: false
+    theme: cosmo
+fontsize: 14pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## 0. Study
+
+* [The Hitchhiker's Guide to Python](https://docs.python-guide.org/intro/learning/)
+
+* Johnson, M. G., & Chartier, S. (2017). Spike neural models
+(part I): The Hodgkin-Huxley model. The Quantitative Methods
+for Psychology, 13(2), 105–119.
+https://doi.org/10.20982/tqmp.13.2.p105
+
+
+## 1. The Hodgkin-Huxley model
+
+Program a Hodgkin-Huxley neuron and plot it's membrane
+potential in response to current injections of a few
+different amplitudes.
