@@ -39,7 +39,9 @@ details:
 |          | Day       | Time                | Location                            |
 |----------|-----------|---------------------|-------------------------------------|
 | Lecture  | Friday    | 10:00 AM - 11:00 AM | Online                              |
-| Tutorial | Thursday  | 9:00 AM - 10:00 PM  | 12 Second Way - 318 Faculty PC Room |
+| Tutorial | Friday    | 2:30 PM - 3:30 PM   | 12 Second Way - 318 Faculty PC Room |
+
+- [Lecture and tutorial Zoom link]()
 
 ## Weekly Lectures
 - Please see [lectures](https://crossley.github.io/cogs3020/lectures-exported.html)

@@ -29,7 +29,7 @@ fontsize: 14pt
 ## Reinforcement Learning (RL)
 ##### Lecture 5: Model-free RL models of stimulus-response learning
 ##### Lecture 6: Model-based RL models of goal-directed learning
-#### Lecture 7: Temporal-difference RL model of dopamine
+##### Lecture 7: Temporal-difference RL model of dopamine
 
 ## Linear dynamical systems
 ##### Lecture 8: State-space models of sensorimotor learning
