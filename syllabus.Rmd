@@ -39,18 +39,23 @@ details:
 |          | Day       | Time                | Location                            |
 |----------|-----------|---------------------|-------------------------------------|
 | Lecture  | Friday    | 10:00 AM - 11:00 AM | Online                              |
-| Tutorial | Friday    | 2:30 PM - 3:30 PM   | 12 Second Way - 318 Faculty PC Room |
+| Tutorial | Thursday  | 9:00 AM - 10:00 AM  | 12 Second Way - 318 Faculty PC Room |
 
-- [Lecture and tutorial Zoom link]()
+- [Lecture and tutorial Zoom link](https://macquarie.zoom.us/my/matthewcrossley)
 
 ## Weekly Lectures
-- Please see [lectures](https://crossley.github.io/cogs3020/lectures-exported.html)
+
+- Please see [lectures](lectures.html)
+
+- Course content will be delivered with agility. We will
+slow down or speed up as need and want demands.
 
 ## Course Philosophy
-**Python competency**: No lectures or tutorials will be
-explicitly geared towards teaching Python. This course
-assumes you have a solid enough programming background to
-pick up Python as we go.
+**Python competency**: We will spend a little time working
+together to learn `Python` but I will be moving faster than
+I do in my second year statistics unit where many of you
+might have learned `R`. This course assumes you have a solid
+enough programming background to pick up Python as we go.
 
 **Computational literacy**: The main objective of the course
 is for you to be able to spend time with published
