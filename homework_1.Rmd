@@ -21,6 +21,23 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## 0. Study
 
+Be sure you have a grip on our fundamental `Python` tools.
+
+* [Numpy](https://numpy.org)
+
+  * [Learn Numpy](https://numpy.org/learn/)
+
+* [Matplotlib](https://matplotlib.org/stable/index.html)
+
+  * [Learn Matplotlib](https://matplotlib.org/stable/tutorials/index.html)
+  
+If you wish to dive deeper than the lecture notes, the
+following readings may be of interest to you:
+
+* Izhikevich, E. M. (2006). Dynamical Systems in
+Neuroscience: The Geometry of Excitability and Bursting. The
+MIT Press. --- Chapter 2
+
 * Johnson, M. G., & Chartier, S. (2017). Spike neural models
 (part I): The Hodgkin-Huxley model. The Quantitative Methods
 for Psychology, 13(2), 105–119.
