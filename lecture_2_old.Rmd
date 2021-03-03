@@ -1,0 +1,764 @@
+---
+title: "Lecture 2 - Hodgkin–Huxley"
+author: "Author: Matthew J. Cossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 3
+    fig_caption: yes
+    # code_folding: show
+    number_sections: false
+    theme: cosmo
+fontsize: 14pt
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+use_python('/Users/mq20185996/miniconda3/bin/python')
+```
+
+## Reading
+
+* The content in this lecture is widely available across
+many different sources, but I have pulled specifically from
+the following:
+
+* Izhikevich, E. M. (2007). Dynamical systems in
+neuroscience. Cambridge, MA: MIT Press. --- Chapter 2
+
+* Johnson, M. G., & Chartier, S. (2017). Spike neural models
+(part I): The Hodgkin-Huxley model. The Quantitative Methods
+for Psychology, 13(2), 105–119.
+https://doi.org/10.20982/tqmp.13.2.p105
+
+
+<!-- ## Hodgkin–Huxley Intro -->
+
+<!-- * HH model simulates ionic flow in the giant squid axon, and -->
+<!-- connected these ionic flows to a mechanistic model of how -->
+<!-- cell membrane potential changes over time. -->
+
+<!-- * Alan Hodgkin and Andrew Huxley won the 1963 Nobel Prize -->
+<!-- for physiology or medicine (shared with John Eccles) for -->
+<!-- this work. -->
+
+<!-- * Key ionic players in membrane potential dynamics: NA$^+$, -->
+<!-- Cl$^-$,  K$^+$, and  A$^-$ (organic ions). -->
+
+<!-- * Diffusion and electrostatic pressure act on all ions and -->
+<!-- in combination with cellular machinery determine the -->
+<!-- dynamics of membrane potential. -->
+
+<!-- * The cell membrane contains sodium-potassium pumps which -->
+<!-- push three Na$^+$ ions out of the cell in exchange for -->
+<!-- pumping two K$^+$ ions into the cell. In the absence of -->
+<!-- external input to the cell, these pumps determine the -->
+<!-- equilibrium concentrations of NA$^+$ and K$^+$ inside and -->
+<!-- outside the cell. -->
+
+<!-- * The cell membrane also has voltage-gated ion channels that -->
+<!-- allow Na$^+$ to rush into the cell and K$^+$ to rush out of -->
+<!-- the cell each following their own unique dynamic. It is -->
+<!-- largely the interplay of these ion channels that determine -->
+<!-- the shape of a cells action potentials. -->
+
+<!-- * To careful map out the interplay of each of these -->
+<!-- processes -- i.e., ion pumps, voltage-gated ion channels, -->
+<!-- electrostatic forces, diffusion forces, and external current -->
+<!-- input -- HH inserted an electrode into a giant squid axon -->
+<!-- and input a current to measure how the flow of ions and cell -->
+<!-- membrane change based on this current. -->
+
+## Differential equations
+
+* The HH model and lots of other models we will encounter
+are ultimately expressed in *differential equations*.
+
+* A differential equation is essentially an equation that
+relates some function $f(x)$ to its derivative
+$\frac{d}{dx}f(x)$ 
+
+* The derivative $\frac{d}{dx}f(x)$ is the **rate of
+change** of the function $f(x)$ with respect to the variable
+$x$. If $x$ changes by an infinitesimal amount,
+$\frac{d}{dx}f(x)$ reports how much $f(x)$ will change in
+response.
+
+* A generic differential equation is as follows:
+
+$$\frac{d}{dx}f(x) = g(x)$$
+
+* You can read this in words as saying that the rate of
+change of $f(x)$ with respect to $x$ --- given by
+$\frac{d}{dx}f(x)$ --- is described by some other function
+$g(x)$.
+
+* To solve a differential equation, we need to find a
+definition for $f(x)$ that makes the equation true.
+
+* For example, if $g(x)$ then:
+
+$$\frac{d}{dx}f(x) = x$$
+
+* We can see that $f(x) = \frac{1}{2}x^2$ solves the
+differential equation, because 
+
+$$
+\begin{align}
+\frac{d}{dx}f(x) &= \frac{d}{dx}\frac{1}{2}x^2 \\
+                 &= \frac{1}{2} \frac{d}{dx} x^2 \\
+                 &= \frac{2}{2} x \\
+                 &= x
+\end{align}
+$$
+
+* In general, the solution to any differential equation can
+be computed via integration $f(x) = \int \frac{d}{dx} f(x) dx$.
+
+* However, in practice, the differential equations we will
+want to solve are too complex to solve using either
+intuition or by explicitly evaluating integrals.
+
+## Euler's method
+
+* Euler's method is a simple method to solve differential
+equations that can be applied in situations were a closed
+analytical solution cannot be easily obtained.
+
+* Euler's method says this:
+
+$$f(x_2) \approx f(x_1) + \frac{d}{dx} f(x) \Bigg\rvert_{x=x_1} \Delta x$$
+
+* In words, this says that the value of $f(x_2)$ is
+approximately equal to $f(x_1)$ plus how much it changed
+from $x_1$ to $x_2$.
+
+* The *how much it was likely to change* bit is computed by
+taking the derivative evaluated at $x_1$ and multiplying by
+the total change in $x$, given by $\Delta x = x_2 - x_1$.
+
+* Here's how to implement Euler's method in `python`: 
+
+```{python message=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# define the range over which to approximate fx
+x = np.arange(0, 5, 0.01)
+
+# initialise fx to zeros
+fx = np.zeros(x.shape)
+
+# Euler's method requires we specify an initial value
+fx[0] = 1
+
+for i in range(1, x.shape[0]):
+  # df/dx = x
+  dfxdx = x[i-1]
+  
+  # delta x
+  dx = x[i] - x[i-1]
+  
+  # Euler's update
+  fx[i] = fx[i-1] + dfxdx * dx
+  
+# plot solution
+# It should look like 1/2 x^2
+fig, ax, = plt.subplots(1, 1, squeeze=False)
+ax[0, 0].plot(x, fx)
+ax[0, 0].set_ylabel('f(x)')
+ax[0, 0].set_xlabel('x')
+plt.show()
+```
+
+
+<!-- ## HH equations: Level 1 -->
+<!-- $$I = C_M \frac{dV}{dt} + I_i$$ -->
+
+<!-- * I is the total membrane current density measured in -->
+<!-- microamps per centimetre squared. -->
+
+<!-- * $C_M$ is the membrane capacity measured in microfarads -->
+<!-- per centimetre squared -->
+
+<!-- * $\frac{dV}{dt}$ is the *derivative (rate of change)* of -->
+<!-- the displacement of the membrane potential from its resting -->
+<!-- value with respect to time. -->
+
+<!-- * $I_i$ represents the three different ionic current -->
+<!-- densities measured (Na$^+$, K$^+$, and leakage which is -->
+<!-- mostly Cl$^-$). -->
+
+<!-- * To describe changes in membrane potential over time we -->
+<!-- need to solve for $\frac{dV}{dt}$. -->
+
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- C_M \frac{dV}{dt} &= I - I_i \\ -->
+<!--     \frac{dV}{dt} &= (I - I_i) / C_M \\ -->
+<!-- \end{align} -->
+<!-- $$ -->
+
+<!-- * We now have a differential equation in a familiar form. We -->
+<!-- will use Euler's method to get $V(t)$. -->
+
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- V(t_2) &\approx V(t_1) + \frac{dV}{dt}\Bigg\rvert_{t=t_1} \Delta t \\ -->
+<!--        &\approx V(t_1) + (I - I_i) / C_M \Bigg\rvert_{t=t_1} \Delta t -->
+<!-- \end{align} -->
+<!-- $$ -->
+
+<!-- * In `python` this would look something like this:  -->
+
+<!-- ```{python} -->
+<!-- import numpy as np -->
+
+<!-- tau = 1 # how many seconds one computer step represents -->
+
+<!-- t = np.arange(0, 100, tau) # initialise time array -->
+
+<!-- v = np.zeros(t.shape) # initialise potential with zeros -->
+<!-- vr = -80 # define initial membrane potential -->
+<!-- v[0] = vr # set initial membrane potential -->
+
+<!-- for i in range(1, t.shape[0]): -->
+<!--   # dv/dt = (I - Ii) / C -->
+<!--   dvdt = 0 # we don't yet have enough information for this term -->
+
+<!--   # delta t -->
+<!--   dt = t[i] - t[i-1] -->
+
+<!--   # Euler's update -->
+<!--   v[t] = v[t-1] + dvdt * dt -->
+<!-- ``` -->
+
+<!-- ## HH equations: level 2 -->
+
+<!-- * To proceed, we need to specify $I_i$.  -->
+
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- C_M \frac{dV}{dt} &= I - I_i \\ -->
+<!--                   &= I - \sum_{ion} I_{ion} \\ -->
+<!--                   &= I - (I_{\text{NA}^+} + I_{\text{K}^+} + I_{\text{Leak}}) -->
+<!-- \end{align} -->
+<!-- $$ -->
+
+<!-- * Each of these currents is driven by voltage-gated ion -->
+<!-- channels (i.e., it is a function of $V$). -->
+
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- I_{\text{NA}^+} &= g_{\text{NA}^+} h m^3 (V - E_{\text{NA}^+})\\ -->
+<!-- I_{\text{K}^+} &= g_{\text{K}^+} n^4 (V - E_{\text{K}^+})\\ -->
+<!-- I_{\text{Leak}} &= g_{\text{Leak}} (V - E_{\text{Leak}})\\ -->
+<!-- \end{align} -->
+<!-- $$ -->
+
+<!-- * $E_{\text{NA}^+}$, $E_{\text{K}^+}$, and $E_{Leak}$ are -->
+<!-- values where there is no movement of the corresponding ion -->
+<!-- through the membrane. -->
+
+<!-- * $g_{\text{NA}^+}$, $g_{\text{K}^+}$, and $g_{Leak}$ are -->
+<!-- maximum membrane conductances per ion measured in -->
+<!-- millisiemens per centimetre squared. -->
+
+<!-- * $h$, $m$, and $n$ are known as gating variables and are -->
+<!-- bound between $0$ and $1$. To capture the non-linear -->
+<!-- dynamical behaviour of ionic flow as $V$ changes, we have to -->
+<!-- make $h$, $m$, and $n$ -- known as gating variables -- -->
+<!-- differential equations in their own right. -->
+
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- \frac{dh}{dt} &= \alpha_h(V)(1-h) - \beta_h(V)h\\ -->
+<!-- \frac{dm}{dt} &= \alpha_m(V)(1-m) - \beta_m(V)m\\ -->
+<!-- \frac{dn}{dt} &= \alpha_n(V)(1-n) - \beta_n(V)n\\ -->
+<!-- \end{align} -->
+<!-- $$ -->
+
+<!-- * Here, the $\alpha$ and $\beta$ terms are function of $V$ -->
+<!-- given by the following: -->
+
+<!-- <div class="row"> -->
+<!-- <div class="col-sm-6"> -->
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- \alpha_h(V) &= 0.07 e^{\frac{(V_{\text{rest}} - V)}{20}}\\ -->
+<!-- \alpha_m(V) &= \frac{2.5 - 0.1 (V - V_{\text{rest}})}{e^{2.5 - 0.1(V-V_{\text{rest}})} - 1}\\ -->
+<!-- \alpha_n(V) &= \frac{0.1 - 0.01 (V - V_{\text{rest}})}{e^{1 - 0.1(V-V_{\text{rest}})} - 1}\\ -->
+<!-- \end{align} -->
+<!-- $$ -->
+<!-- </div> -->
+<!-- <div class="col-sm-6"> -->
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- \beta_h(V) &= \frac{1}{1 + e^{3 - 0.1 (V - V_{\text{rest}})}}\\ -->
+<!-- \beta_m(V) &= 4 e^\frac{{(V_{\text{rest}}-V)}}{18}\\ -->
+<!-- \beta_n(V) &= 0.125 e^\frac{{(V_{\text{rest}}-V)}}{80}\\ -->
+<!-- \end{align} -->
+<!-- $$ -->
+<!-- </div> -->
+<!-- </div> -->
+
+<!-- ## HH Python -->
+
+<!-- ```{python} -->
+<!-- import numpy as np -->
+<!-- import matplotlib.pyplot as plt -->
+
+<!-- tau = 0.01 # how many ms one computer step represents -->
+<!-- T = 15 # total ms of the simulation -->
+<!-- t = np.arange(0, T, tau) # initialise time array -->
+
+<!-- h = np.zeros(t.shape) -->
+<!-- m = np.zeros(t.shape) -->
+<!-- n = np.zeros(t.shape) -->
+
+<!-- v = np.zeros(t.shape) # initialise potential with zeros -->
+<!-- vr = -65 # define initial membrane potential -->
+<!-- v[0] = vr # set initial membrane potential -->
+
+<!-- I = [4] * t.shape[0] -->
+<!-- C = 50 -->
+
+<!-- g_na = 120 -->
+<!-- g_k = 36 -->
+<!-- g_leak = 0.3 -->
+
+<!-- E_na = 115 + vr -->
+<!-- E_k = -6 + vr -->
+<!-- E_leak = 10.6 + vr -->
+
+<!-- def alpha_func_h(v): -->
+<!--   y = 0.07 * np.exp((vr - v)/20) -->
+<!--   return y -->
+
+
+<!-- def alpha_func_m(v): -->
+<!--   y = (2.5-0.1*(v-vr))/ (np.exp(2.5-0.1*(v-vr))-1) -->
+<!--   return y -->
+
+
+<!-- def alpha_func_n(v): -->
+<!--   y = (0.1-0.01*(v-vr))/ (np.exp(1.0-0.1*(v-vr))-1) -->
+<!--   return y -->
+
+
+<!-- def beta_func_h(v): -->
+<!--   y = 1/(1+np.exp(3-0.1*(v-vr))) -->
+<!--   return y -->
+
+
+<!-- def beta_func_m(v): -->
+<!--   y = 4 * np.exp((vr-v)/18) -->
+<!--   return y -->
+
+
+<!-- def beta_func_n(v): -->
+<!--   y = 0.125*np.exp((vr-v)/80) -->
+<!--   return y -->
+
+<!-- h[0] = alpha_func_h(vr) / (alpha_func_h(vr) + beta_func_h(vr)) -->
+<!-- m[0] = alpha_func_m(vr) / (alpha_func_m(vr) + beta_func_m(vr)) -->
+<!-- n[0] = alpha_func_n(vr) / (alpha_func_n(vr) + beta_func_n(vr)) -->
+
+<!-- for i in range(1, t.shape[0]): -->
+
+<!--   I_na = g_na * h[i-1] * m[i-1]**3 * (v[i-1] - E_na) -->
+<!--   I_k = g_k * n[i-1]**4 * (v[i-1] - E_k) -->
+<!--   I_leak = g_leak * (v[i-1] - E_leak) -->
+
+<!--   dvdt = I[i-1] - (I_na + I_k + I_leak) -->
+
+<!--   dhdt = alpha_func_h(v[i-1]) * (1 - h[i-1]) - beta_func_h(v[i-1]) * h[i-1] -->
+<!--   dmdt = alpha_func_m(v[i-1]) * (1 - m[i-1]) - beta_func_m(v[i-1]) * m[i-1] -->
+<!--   dndt = alpha_func_n(v[i-1]) * (1 - n[i-1]) - beta_func_n(v[i-1]) * n[i-1] -->
+
+<!--   # delta t -->
+<!--   dt = t[i] - t[i-1] -->
+
+<!--   # Euler's update -->
+<!--   v[i] = v[i-1] + dvdt * dt -->
+<!--   h[i] = h[i-1] + dhdt * dt -->
+<!--   m[i] = m[i-1] + dmdt * dt -->
+<!--   n[i] = n[i-1] + dndt * dt -->
+
+<!-- fig, ax, = plt.subplots(1, 1, squeeze=False) -->
+<!-- ax[0, 0].plot(t, v) -->
+<!-- ax[0, 0].set_ylabel('v') -->
+<!-- ax[0, 0].set_xlabel('t') -->
+<!-- plt.show() -->
+<!-- ``` -->
+
+
+
+## Electrophysiology of Neurons
+
+* Key ionic players in membrane potential dynamics 
+  * Na$^+$
+  * K$^+$
+  * Ca$^{2+}$
+  * Cl$^-$ 
+  * A$^-$ (organic ions).
+  
+* Extracellular medium is high in Na$^+$, Cl$^-$ and to a
+lesser extent Ca$^{2+}$.
+
+* Intracellular medium is high in K$^+$ and A$^-$.
+
+* Two primary forces act on these ions:
+
+  * Diffusion tries to mix everything up
+  
+  * Electrostatic pressure tries to split up positive from
+  negative charges.
+  
+* These two forces must operate within the bounds of the
+cell architecture:
+
+  * Channels in the cell membrane permit the flow of Cl$^-$
+  and k$^+$.
+  
+  * A$^-$, which is stuck on the inside of the cell, repels
+  Cl$^-$ and attracts K$^+$ and Na$^+$.
+  
+  * Na$^+$-$K^+$ pumps push three Na$^+$ ions out of the cell
+  in exchange for pumping two K$^+$ ions into the cell.
+
+* For each ion type, diffusion and electrostatic pressure
+work against each other, and at some point, the diffusion
+forces and electrostatic forces are equal and opposite. At
+this point, net ion flow is zero.
+
+## HH Level 1
+
+* The membrane potential at which the flow of a particular
+ion is zero is called the Nernst equilibrium potential or
+the reversal potential and is denoted $E$.
+
+* For any particular ion, the net ionic flow or current is
+proportional to the difference between the membrane
+potential and the reversal potential for that ion.
+
+$$
+I_{ion} = g_{ion} (V - E_{ion})
+$$
+
+* $V$ is the membrane potential, $g_{ion}$ is called the
+*conductance* and $(V - E_{ion})$ is called the driving
+force.
+
+* The total current across a patch of membrane is given by:
+
+$$
+I = C \frac{dV}{dt} + I_{Na} + I_{Ca} + I_{K} + I_{Cl}
+$$
+
+* $C$ is the membrane capacitance and $C \frac{dV}{dt}$ is
+the capacitive current --- this is the flow of ions onto one
+side of the membrane and away from the other.
+
+* It's now easy to get an expression for the change in
+membrane potential over time.
+
+
+$$
+C \frac{dV}{dt} = I - I_{Na} - I_{CA} - I_{K} - I_{CL}) \\
+$$
+
+* We now have a differential equation in a familiar form. We
+will use Euler's method to get $V(t)$.
+
+$$
+\begin{align}
+V(t_2) &\approx V(t_1) + \frac{dV}{dt}\Bigg\rvert_{t=t_1} \Delta t \\
+       &\approx V(t_1) + (I - I_{Na} - I_{CA} - I_{K} - I_{CL}) / C \Bigg\rvert_{t=t_1} \Delta t
+\end{align}
+$$
+
+* In `python` this would look something like this: 
+
+```{python}
+import numpy as np
+
+tau = 1 # how many seconds one computer step represents
+
+t = np.arange(0, 100, tau) # initialise time array
+
+v = np.zeros(t.shape) # initialise potential with zeros
+vr = -80 # define initial membrane potential
+v[0] = vr # set initial membrane potential
+
+for i in range(1, t.shape[0]):
+  # dv/dt = (I - Ii) / C
+  dvdt = 0 # we don't yet have enough information for this term
+  
+  # delta t
+  dt = t[i] - t[i-1]
+  
+  # Euler's update
+  v[t] = v[t-1] + dvdt * dt
+```
+
+## HH Level 2
+
+* To proceed unpacking these terms fully so that we can
+program it up using Euler's method, we express currents in
+terms of their conductances as follows:
+ 
+$$
+C \frac{dV}{dt} = I - g_{Na} (V - E_{Na}) 
+                    - g_{Ca} (V - E_{Ca}) 
+                    - g_{K} (V - E_{K}) 
+                    - g_{Cl} (V - E_{Cl}) 
+$$
+
+* However, it turns out that membrane conductances (i.e.,
+the $g_{i}$ terms) are not static. Rather, they change over
+time as a function of $V$, and they do this through the
+operation of so-called activation and inactivation gates.
+
+* Activation gates are voltage-gated membrane channels that
+permit a particular ion flow when certain voltages are
+sensed.
+
+* Inactivation gates are like activation gates but they
+block ion flow when certain voltages are reached.
+
+* The proportion of open channels in a large population is given by:
+
+$$
+p = m^a h^b
+$$
+
+* $m$ is the probability of an activation gate being open,
+$h$ is the probability of an inactivation gate being open,
+$a$ is the number of activation gates and $b$ is the number
+of inactivation gates per channel.
+
+* We can now express membrane potential in terms of $m$ and
+$h$ as follows:
+
+$$
+C \frac{dV}{dt} = I - \overline{g}_{Na} m_{Na}^a h_{Na}^b (V - E_{Na}) 
+                    - \overline{g}_{Ca} m_{K}^a h_{Ca}^b (V - E_{Ca}) 
+                    - \overline{g}_{K} m_{K}^a h_{K}^b (V - E_{K}) 
+                    - \overline{g}_{Cl} m_{K}^a h_{Cl}^b (V - E_{K}) 
+$$
+
+* Here, the $\overline{g}_i$ terms are mean conductances and
+can be measured experimentally.
+
+* Specifying how membrane conductance changes with $V$ over
+time is equivalent to stating how $m$ and $h$ change over
+time. Both follow simple differential equations as follows:
+
+$$
+\frac{d}{dt}m = (m_{\infty}(V) - m) / \tau(V) \\
+\frac{d}{dt}h = (h_{\infty}(V) - h) / \tau(V)
+$$
+
+* $m_{\infty}(V)$ and $h_{\infty}$ are called steady-state
+terms and $\tau(V)$ is a time constant. Both can be measured
+experimentally.
+
+
+## HH Full
+
+* Hodgkin and Huxley (1952) determined that the squid axon
+carries three major currents: 
+
+  * voltage-gated persistent K$^+$ current with 4 activation gates
+  
+  * voltage-gated transient Na$^+$ current with 3 activation gates and 1 inactivation gate
+  
+  * leak current carried mostly by Cl$^-$ ions
+
+* From the work covered in the previous section, we can write:
+
+
+$$
+C \frac{dV}{dt} = I - \overline{g}_{K} n^4 (V - E_{K}) 
+                    - \overline{g}_{Na} m^3 h (V - E_{Na}) 
+                    - \overline{g}_{L} (V - E_{L})\\
+\frac{d}{dt}n = (n_{\infty}(V) - n) / \tau(V) \\
+\frac{d}{dt}m = (m_{\infty}(V) - m) / \tau(V) \\
+\frac{d}{dt}h = (h_{\infty}(V) - h) / \tau(V) \\
+$$
+
+
+* All that remains to specify are the steady-state and
+time-constant terms, which were measured experimentally by
+HH to be the following:
+
+<div class="row">
+<div class="col-sm-6">
+$$
+n_{\infty}(V) = \frac{\alpha_n(V)}{\alpha_n(V) + \beta_n(V)} \\
+m_{\infty}(V) = \frac{\alpha_m(V)}{\alpha_m(V) + \beta_m(V)} \\
+h_{\infty}(V) = \frac{\alpha_n(V)}{\alpha_h(V) + \beta_h(V)} \\
+$$
+</div>
+<div class="col-sm-6">
+$$
+\tau_n = \frac{1}{\alpha_n(V) + \beta_n(V)} \\
+\tau_m = \frac{1}{\alpha_m(V) + \beta_m(V)} \\
+\tau_h = \frac{1}{\alpha_h(V) + \beta_h(V)}
+$$
+</div>
+</div>
+
+* Here, the $\alpha$ and $\beta$ terms are function of $V$
+given by the following:
+
+<div class="row">
+<div class="col-sm-6">
+$$
+\begin{align}
+\alpha_h(V) &= 0.07 e^{\frac{(V_{\text{rest}} - V)}{20}}\\
+\alpha_m(V) &= \frac{2.5 - 0.1 (V - V_{\text{rest}})}{e^{2.5 - 0.1(V-V_{\text{rest}})} - 1}\\
+\alpha_n(V) &= \frac{0.1 - 0.01 (V - V_{\text{rest}})}{e^{1 - 0.1(V-V_{\text{rest}})} - 1}\\
+\end{align}
+$$
+</div>
+<div class="col-sm-6">
+$$
+\begin{align}
+\beta_h(V) &= \frac{1}{1 + e^{3 - 0.1 (V - V_{\text{rest}})}}\\
+\beta_m(V) &= 4 e^\frac{{(V_{\text{rest}}-V)}}{18}\\
+\beta_n(V) &= 0.125 e^\frac{{(V_{\text{rest}}-V)}}{80}\\
+\end{align}
+$$
+</div>
+</div>
+
+
+* HH phrased things in the following mathematically
+equivalent way:
+
+$$
+C \frac{dV}{dt} = I - \overline{g}_{K} n^4 (V - E_{K}) 
+                    - \overline{g}_{Na} m^3 h (V - E_{Na}) 
+                    - \overline{g}_{L} (V - E_{L})\\
+\begin{align}
+\frac{dh}{dt} &= \alpha_h(V)(1-h) - \beta_h(V)h\\
+\frac{dm}{dt} &= \alpha_m(V)(1-m) - \beta_m(V)m\\
+\frac{dn}{dt} &= \alpha_n(V)(1-n) - \beta_n(V)n\\
+\end{align}
+$$
+
+* In either formulation, the parameters are the same:
+
+<div class="row">
+<div class="col-sm-6">
+$$
+E_{K} = -12 \text{ mV} \\
+E_{Na} = 120 \text{ mV} \\
+E_{L} = 10.6 \text{ mV}
+$$
+</div>
+<div class="col-sm-6">
+$$
+\overline{g}_{K} = 36 \text{ mS/cm$^2$} \\
+\overline{g}_{Na} = 120 \text{ mS/cm$^2$} \\
+\overline{g}_{L} = 0.3 \text{ mS/cm$^2$}
+$$
+</div>
+</div>
+
+
+## HH `Python`
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+tau = 0.01 # how many ms one computer step represents
+T = 15 # total ms of the simulation
+t = np.arange(0, T, tau) # initialise time array
+
+h = np.zeros(t.shape)
+m = np.zeros(t.shape)
+n = np.zeros(t.shape)
+
+v = np.zeros(t.shape) # initialise potential with zeros
+vr = -65 # define initial membrane potential
+v[0] = vr # set initial membrane potential
+
+I = [4] * t.shape[0]
+C = 50
+
+g_na = 120
+g_k = 36
+g_leak = 0.3
+
+E_na = 115 + vr
+E_k = -6 + vr
+E_leak = 10.6 + vr
+
+def alpha_func_h(v):
+  y = 0.07 * np.exp((vr - v)/20)
+  return y
+
+
+def alpha_func_m(v):
+  y = (2.5-0.1*(v-vr))/ (np.exp(2.5-0.1*(v-vr))-1)
+  return y
+
+
+def alpha_func_n(v):
+  y = (0.1-0.01*(v-vr))/ (np.exp(1.0-0.1*(v-vr))-1)
+  return y
+
+
+def beta_func_h(v):
+  y = 1/(1+np.exp(3-0.1*(v-vr)))
+  return y
+
+
+def beta_func_m(v):
+  y = 4 * np.exp((vr-v)/18)
+  return y
+
+
+def beta_func_n(v):
+  y = 0.125*np.exp((vr-v)/80)
+  return y
+
+h[0] = alpha_func_h(vr) / (alpha_func_h(vr) + beta_func_h(vr))
+m[0] = alpha_func_m(vr) / (alpha_func_m(vr) + beta_func_m(vr))
+n[0] = alpha_func_n(vr) / (alpha_func_n(vr) + beta_func_n(vr))
+
+for i in range(1, t.shape[0]):
+  
+  I_na = g_na * h[i-1] * m[i-1]**3 * (v[i-1] - E_na)
+  I_k = g_k * n[i-1]**4 * (v[i-1] - E_k)
+  I_leak = g_leak * (v[i-1] - E_leak)
+  
+  dvdt = I[i-1] - (I_na + I_k + I_leak)
+  
+  dhdt = alpha_func_h(v[i-1]) * (1 - h[i-1]) - beta_func_h(v[i-1]) * h[i-1]
+  dmdt = alpha_func_m(v[i-1]) * (1 - m[i-1]) - beta_func_m(v[i-1]) * m[i-1]
+  dndt = alpha_func_n(v[i-1]) * (1 - n[i-1]) - beta_func_n(v[i-1]) * n[i-1]
+  
+  # delta t
+  dt = t[i] - t[i-1]
+  
+  # Euler's update
+  v[i] = v[i-1] + dvdt * dt
+  h[i] = h[i-1] + dhdt * dt
+  m[i] = m[i-1] + dmdt * dt
+  n[i] = n[i-1] + dndt * dt
+  
+fig, ax, = plt.subplots(1, 1, squeeze=False)
+ax[0, 0].plot(t, v)
+ax[0, 0].set_ylabel('v')
+ax[0, 0].set_xlabel('t')
+plt.show()
+```

@@ -17,11 +17,11 @@ fontsize: 14pt
 ---
 
 ## Course Intro
-##### [Lecture 1: Course intro, `Python`](lecture_1.html)
+##### [Lecture 1: Course intro, `Python`, math](lecture_1.html)
 
 ## Neuron models
-##### [Lecture 2: Hodgkin–Huxley](lecture_2.html)
-##### Lecture 3: Integrate-and-fire, quadratic integrate-and-fire, The Izhikevich model
+##### [Lecture 2/3: Simple Models](lecture_2.html)
+##### [Lecture 2/3: Hodgkin–Huxley](lecture_3.html)
 
 ## Building spiking networks
 ##### Lecture 4: Direct and indirect pathways of the basal ganglia
