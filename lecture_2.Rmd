@@ -32,7 +32,7 @@ $$
 import numpy as np
 import matplotlib.pyplot as plt
 
-T = 100
+T = 90
 tau = 0.01
 t = np.arange(0, T, tau)
 n = t.shape[0]
@@ -73,18 +73,19 @@ $$
 import numpy as np
 import matplotlib.pyplot as plt
 
-step = 0.1 # integration time step
-T = 90 # total ms of the simulation
-t = np.arange(0, T, step) # initialise time array
+T = 90
+tau = 0.01
+t = np.arange(0, T, tau)
+n = t.shape[0]
 
-v = np.zeros(t.shape) # initialise potential with zeros
-vreset = 0 # define initial membrane potential
-vpeak = 1 # define the firing threshold
-v[0] = vreset # set initial membrane potential
+v = np.zeros(n)
+vreset = 0
+vpeak = 1
+v[0] = vreset
 
-b = np.concatenate(([0.0] * (t.shape[0] // 3),
-                    [0.02] * (t.shape[0] // 3),
-                    [0.0] * (t.shape[0] // 3)))
+b = np.concatenate(([0.0] * (n // 3),
+                    [0.02] * (n // 3),
+                    [0.0] * (n // 3)))
 
 for i in range(1, t.shape[0]):
   
@@ -107,7 +108,7 @@ plt.show()
 
 $$
 \begin{align}
-C \frac{d}{dt} v(t) &= -k(v(t) - v_r) (v(t) - v_t) - u(t) + I(t) \\
+C \frac{d}{dt} v(t) &= k(v(t) - v_r) (v(t) - v_t) - u(t) + I(t) \\
 \frac{d}{dt} u(t) &= a \big(b(v(t) - v_r) - u(t)\big) \\
 \text{ if} &\quad v(t) > v_{\text{peak}} \\
 \text{ then} &\quad v(t) \leftarrow c, \quad u(t) \leftarrow u(t) + d
@@ -135,8 +136,8 @@ c = -50
 d = 100
 k = 0.7
 
-u = np.zeros(t.shape)
-v = np.zeros(t.shape)
+u = np.zeros(n)
+v = np.zeros(n)
 v[0] = vr
 
 I = np.zeros(n)
@@ -186,8 +187,8 @@ c = -56
 d = 130
 k = 1.2
 
-u = np.zeros(t.shape)
-v = np.zeros(t.shape)
+u = np.zeros(n)
+v = np.zeros(n)
 v[0] = vr
 
 I = np.zeros(n)
@@ -237,8 +238,8 @@ c = -40
 d = 150
 k = 1.5
 
-u = np.zeros(t.shape)
-v = np.zeros(t.shape)
+u = np.zeros(n)
+v = np.zeros(n)
 v[0] = vr
 
 I = np.zeros(n)

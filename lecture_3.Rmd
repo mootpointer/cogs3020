@@ -82,8 +82,7 @@ I = C \frac{dV}{dt} + I_{Na} + I_{Ca} + I_{K} + I_{Cl}
 $$
 
 * $C$ is the membrane capacitance and $C \frac{dV}{dt}$ is
-the capacitive current --- this is the flow of ions onto one
-side of the membrane and away from the other.
+the capacitive current.
 
 * It's now easy to get an expression for the change in
 membrane potential over time.
