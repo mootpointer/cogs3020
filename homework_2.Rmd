@@ -1,0 +1,93 @@
+---
+title: "Homework 2"
+author: "Author: Matthew J. Cossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 3
+    fig_caption: yes
+    number_sections: false
+    theme: cosmo
+fontsize: 14pt
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+use_python('/Users/mq20185996/miniconda3/bin/python')
+```
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def izn(shape_params, spike_params, t_params):
+
+    (a, b, c, d, k, C) = shape_params
+    (vr, vt, vpeak) = spike_params
+    (T, tau, t, n) = t_params
+
+    u = np.zeros(n)
+    v = np.zeros(n)
+    v[0] = vr
+
+    for i in range(1, n):
+
+        dvdt = (k * (v[i - 1] - vr) *
+                (v[i - 1] - vt) - u[i - 1] + I[i - 1]) / C
+        dudt = a * (b * (v[i - 1] - vr) - u[i - 1])
+        dt = t[i] - t[i - 1]
+
+        v[i] = v[i - 1] + dvdt * dt
+        u[i] = u[i - 1] + dudt * dt
+
+        if v[i] > vpeak:
+            v[i - 1] = vpeak
+            v[i] = c
+            u[i] = u[i] + d
+
+    fig, ax = plt.subplots(1, 1, squeeze=False)
+
+    ax1 = ax[0, 0]
+    ax2 = ax1.twinx()
+
+    ax1.plot(t, v, c='C0')
+    ax1.set_ylabel('v')
+    ax1.set_xlabel('t')
+
+    ax2.plot(t, u, c='C1')
+    ax2.set_ylabel('u')
+    ax2.set_xlabel('t')
+
+    plt.show()
+
+
+T = 1000
+tau = 1
+t = np.arange(0, T, tau)
+n = t.shape[0]
+t_params = (T, tau, t, n)
+
+C = 100
+vr = -60
+vt = -40
+vpeak = 35
+spike_params = (vr, vt, vpeak)
+
+# Equivalent to a qif neuron with adaptation when b=0
+a = 0.03
+b = 2 # resonant
+# b = -2  # amplifying
+c = -50
+d = 100
+k = 0.7
+shape_params = (a, b, c, d, k, C)
+I = np.zeros(n)
+I[n // 3:(2 * n // 3 )] = 100
+izn(shape_params, spike_params, t_params)
+```
+

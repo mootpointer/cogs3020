@@ -115,6 +115,41 @@ C \frac{d}{dt} v(t) &= k(v(t) - v_r) (v(t) - v_t) - u(t) + I(t) \\
 \end{align}
 $$
 
+* System of two coupled differential equations comprised of
+a fast voltage variable $v$ and a slow recovery variable
+$u$.
+
+* All slow currents that *modulate* spike generation are
+combined in the variable $u$ (e.g., the activation of the
+K$^+$ current or inactivation of the Na$^+$ current or their
+combination).
+
+* Main advantage over quadratic integrate-and-fire is that
+it can capture a wide variety of spiking behaviour (e.g.,
+bursting, chattering, etc.) as well as interesting
+subthreshold dynamics leading to spikes.
+
+* The parameters $k$ and $b$ can be found when one knows the
+neuron's rheobase and input resistance. The rheobase is
+roughly the minimal amplitude of continuous current that
+causes the membrane potential to reach the depolarization
+threshold.
+
+* The sign of $b$ determines whether $u$ is an amplifying
+($b < 0$) or a resonant ($b > 0$) variable. In the latter
+case, the neuron sags in response to hyperpolarized pulses
+of current, peaks in response to depolarized subthreshold
+pulses, and produces rebound (postinhibitory) responses.
+
+* The parameter $a$ is the recovery time constant. 
+
+* The spike cutoff value is $v_{\text{peak}}$, and the
+voltage reset value is $c$. 
+
+* The parameter $d$ describes the total amount of outward
+minus inward currents activated during the spike and
+affecting the after-spike behaviour.
+
 ### Regular Spiking
 ```{python}
 import numpy as np

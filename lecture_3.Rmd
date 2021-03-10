@@ -89,7 +89,7 @@ membrane potential over time.
 
 
 $$
-C \frac{dV}{dt} = I - I_{Na} - I_{CA} - I_{K} - I_{CL}) \\
+C \frac{dV}{dt} = I - I_{Na} - I_{CA} - I_{K} - I_{CL} \\
 $$
 
 * We now have a differential equation in a familiar form. We

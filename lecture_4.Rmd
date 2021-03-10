@@ -1,0 +1,115 @@
+---
+title: "Lecture 4 - Neurotransmitter release"
+author: "Author: Matthew J. Cossley"
+date: "Last update: `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+        collapsed: true
+        smooth_scroll: true
+    toc_depth: 3
+    fig_caption: yes
+    # code_folding: show
+    number_sections: false
+    theme: cosmo
+fontsize: 14pt
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+use_python('/Users/mq20185996/miniconda3/bin/python')
+```
+
+## Synaptics responses
+
+Action potentials lead to neurotransmitter release which
+float across the synaptic cleft and bind to postsynaptic
+receptors on a receiving neuron, causing excitatory or
+inhibitory postsynaptic potentials (EPSP or IPSP) in the
+receiving neuron. The effect of EPSP and IPSP on the
+receiving cells membrane potential is commonly modelled as
+follows.
+
+$$
+\Delta V_{\text{PSP}}(t) =  A t e^{\frac{-t}{t_{\text{peak}}}}
+$$
+
+* $A$ is amplitude parameter
+
+* $t_{\text{peak}}$ is the time at which $\Delta
+V_{\text{PSP}}(t)$ reaches its max value.
+
+* In neuroscience, this function is often called the *alpha function*.
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+tau = 0.1
+T = 10
+A = 1
+t_peak = 2
+t = np.arange(0, T, tau)
+n = t.shape[0]
+v_psp= A * t * np.exp(-t/t_peak)
+
+fig, ax = plt.subplots(1, 1, squeeze=False)
+ax[0,0].plot(t, v_psp)
+ax[0,0].set_xlabel('x')
+ax[0,0].set_ylabel('V')
+plt.show()
+```
+
+* Similar but slightly simpler model can be written as a
+simple differential equation and solved with Euler's method.
+
+```{python}
+v_psp = np.zeros(n)
+spike = np.zeros(n)
+spike[20] = 1
+
+for i in range(n):
+  dvdt = (-v_psp[i-1] + A * spike[i-1]) / t_peak
+  dt = t[i] - t[i-1]
+  
+  v_psp[i] = v_psp[i-1] + dvdt * dt
+
+fig, ax = plt.subplots(1, 1, squeeze=False)
+ax[0,0].plot(t, v_psp)
+ax[0,0].set_xlabel('x')
+ax[0,0].set_ylabel('V')
+plt.show()
+```
+
+
+```{python}
+tau = 0.1
+T = 100
+A = 1
+t_peak = 2
+t = np.arange(0, T, tau)
+n = t.shape[0]
+
+v_psp = np.zeros(n)
+g = np.zeros(n)
+spike = np.zeros(n)
+spike[20::20] = 1
+E = -10
+g_leak = 1
+C=1
+for i in range(n):
+  dvdt = (g[i-1]*(v_psp[i-1]- E) - g_leak * v_psp[i-1]) / C
+  dgdt = (-g[i-1] + A * spike[i-1]) / t_peak
+  dt = t[i] - t[i-1]
+  
+  v_psp[i] = v_psp[i-1] + dvdt * dt
+  g[i] = g[i-1] + dgdt * dt
+
+fig, ax = plt.subplots(2, 1, squeeze=False)
+ax[0,0].plot(t, v_psp)
+ax[1,0].plot(t, g)
+ax[0,0].set_xlabel('x')
+ax[0,0].set_ylabel('V')
+plt.show()
+```
