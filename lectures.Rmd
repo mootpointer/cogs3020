@@ -23,6 +23,9 @@ fontsize: 14pt
 ##### [Lecture 2/3: Simple Models](lecture_2.html)
 ##### [Lecture 2/3: Hodgkin–Huxley](lecture_3.html)
 
+## Neurotransmitter release
+##### [Lecture 4: Neurotransmitter release](lecture_4.html)
+
 ## Building spiking networks
 ##### Lecture 4: Direct and indirect pathways of the basal ganglia
 
