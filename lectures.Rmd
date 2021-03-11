@@ -20,14 +20,15 @@ fontsize: 14pt
 ##### [Lecture 1: Course intro, `Python`, math](lecture_1.html)
 
 ## Neuron models
-##### [Lecture 2/3: Simple Models](lecture_2.html)
-##### [Lecture 2/3: Hodgkin–Huxley](lecture_3.html)
+##### [Lecture 2-1: Simple Models](lecture_2.html)
+##### [Lecture 2-2: Hodgkin–Huxley](lecture_3.html)
 
-## Neurotransmitter release
-##### [Lecture 4: Neurotransmitter release](lecture_4.html)
+## Modelling postsynaptic potentials
+##### [Lecture 3-1: postsynaptic potentials](lecture_4.html)
 
 ## Building spiking networks
-##### Lecture 4: Direct and indirect pathways of the basal ganglia
+##### Lecture 4: Chaining neurons together
+<!-- ##### [Lecture 4: Chaining neurons together](lecture_5.html) -->
 
 ## Reinforcement Learning (RL)
 ##### Lecture 5: Model-free RL models of stimulus-response learning
