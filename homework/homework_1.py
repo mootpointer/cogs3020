@@ -12,12 +12,15 @@ def hh_model(tau, T, inj=None, E_leak=10.6):
     m = np.zeros(t.shape)
     n = np.zeros(t.shape)
 
+    I_na = np.zeros(t.shape)
+    I_k = np.zeros(t.shape)
+    I_leak = np.zeros(t.shape)
+
     v = np.zeros(t.shape)  # initialise potential with zeros
     vr = -65  # define initial membrane potential
     v[0] = vr  # set initial membrane potential
 
-    I = [4] * t.shape[0]
-    C = 50
+    C = 0.9  # Value taken from here: https://www.sciencedirect.com/science/article/pii/S000634950076293X
 
     g_na = 120
     g_k = 36
@@ -46,12 +49,12 @@ def hh_model(tau, T, inj=None, E_leak=10.6):
 
     for i in range(1, t.shape[0]):
 
-        I_na = g_na * h[i-1] * m[i-1]**3 * (v[i-1] - E_na)
-        I_k = g_k * n[i-1]**4 * (v[i-1] - E_k)
-        I_leak = g_leak * (v[i-1] - E_leak)
+        I_na[i-1] = g_na * h[i-1] * m[i-1]**3 * (v[i-1] - E_na)
+        I_k[i-1] = g_k * n[i-1]**4 * (v[i-1] - E_k)
+        I_leak[i-1] = g_leak * (v[i-1] - E_leak)
 
         # It looked like in the lecture code the C went missing.
-        dvdt = I[i-1] - (I_na + I_k + I_leak) + I_inj[i-1]
+        dvdt = I_inj[i-1] - (I_na[i-1] + I_k[i-1] + I_leak[i-1]) / C
 
         dhdt = alpha_func_h(v[i-1]) * (1 - h[i-1]) - \
             beta_func_h(v[i-1]) * h[i-1]
@@ -68,19 +71,21 @@ def hh_model(tau, T, inj=None, E_leak=10.6):
         h[i] = h[i-1] + dhdt * dt
         m[i] = m[i-1] + dmdt * dt
         n[i] = n[i-1] + dndt * dt
-    return (t, v, I_inj)
+    return (t, v, I_na, I_k, I_inj)
 
 
 # %% Question 1: Why do we care about Tau?
 tau_values = [0.01, 0.05, 0.075, 1]
-fig, ax = plt.subplots(len(tau_values), squeeze=True)
+fig, ax = plt.subplots(len(tau_values)//2, 2, squeeze=True)
+flat = ax.flatten()
 
 for index, value in enumerate(tau_values):
-    t, v, _ = hh_model(value, 15)
-    ax[index].plot(t, v)
-    ax[index].set_title(f"Tau = {value}")
-    ax[index].set_ylabel('v')
-    ax[index].set_xlabel('t')
+    t, v, _, _, _ = hh_model(value, 15)
+    flat[index].plot(t, v)
+    flat[index].set_title(f"Tau = {value}")
+    flat[index].set_ylabel('v')
+    flat[index].set_xlabel('t')
+plt.tight_layout()
 plt.show()
 
 # As Tau increases, the liklihood of weird things happening due to high rate of change
@@ -98,7 +103,7 @@ I_values = [0, 2]
 fig, ax = plt.subplots(1, squeeze=True)
 
 for index, value in enumerate(I_values):
-    t, v, _ = hh_model(0.01, 15, inj=dc_inj(value))
+    t, v, _, _, _ = hh_model(0.01, 15, inj=dc_inj(value))
     ax.plot(t, v, label=f"DC Current = {value}µA/cm^2")
 ax.set_ylabel('v')
 ax.set_xlabel('t')
@@ -110,7 +115,23 @@ plt.show()
 # %% Question 2 It didn't really make sense to super impose the conductances,
 #    since they're constant. I superimposed the currents instead.
 
-# TODO: Refactor so I can superimpose the currents.
+
+fig, ax = plt.subplots(1, squeeze=True)
+t, v, na, k, inj = hh_model(0.01, 15, inj=dc_inj(2))
+v_lns = ax.plot(t, v, label=f"Membrane Potential")
+ax.set_ylabel('v')
+ax.set_xlabel('t')
+
+ax2 = ax.twinx()
+ax2.set_ylabel('µA/cm^2')
+na_lns = ax2.plot(t, na, color='red', label="Na Current")
+k_lns = ax2.plot(t, k, color='green', label="K Current")
+
+lns = v_lns + na_lns + k_lns
+labs = [l.get_label() for l in lns]
+ax.legend(lns, labs)
+
+plt.show()
 
 # %% Question 3: Inject 4µA/cm^2 during the middle third of the simulation.
 
@@ -124,7 +145,7 @@ def dc_middle_third(t):
 
 fig, ax = plt.subplots(1, squeeze=True)
 
-t, v, inj = hh_model(0.01, 100, inj=dc_middle_third)
+t, v, _, _, inj = hh_model(0.01, 100, inj=dc_middle_third)
 ax.plot(t, v, label=f"Membrane Potential")
 ax.set_ylabel('v')
 ax.set_xlabel('t')
@@ -144,7 +165,7 @@ fig, ax = plt.subplots(1, squeeze=True)
 E_leak_values = [10.6, 21.2]
 
 for index, value in enumerate(E_leak_values):
-    t, v, _ = hh_model(0.01, 15, E_leak=value)
+    t, v, _, _, _ = hh_model(0.01, 15, E_leak=value)
     ax.plot(t, v, label=f"E_leak = {value} mV")
 ax.set_ylabel('v')
 ax.set_xlabel('t')
